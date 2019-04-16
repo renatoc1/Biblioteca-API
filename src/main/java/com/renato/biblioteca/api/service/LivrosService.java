@@ -16,7 +16,7 @@ public class LivrosService {
 
 	public Livros atualizar(Long id, Livros livro) {
 		
-		Livros livroSalvo = livrosRepository.findById(id).orElse(null);
+		Livros livroSalvo = livrosRepository.findOne(id);
 		if (livroSalvo == null) {
 			throw new EmptyResultDataAccessException(1);
 		}

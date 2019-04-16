@@ -36,23 +36,24 @@ public class LivrosRepositoryImpl implements LivrosRepositoryQuery {
 
 		TypedQuery<Livros> query = manager.createQuery(criteria);
 		adicionarRestricoesDePaginacao(query, pageable);
-		
+
 		return new PageImpl<>(query.getResultList(), pageable, total(livrosFilter));
 	}
 
-
 	private Predicate[] criarRestricoes(LivrosFilter livrosFilter, CriteriaBuilder builder, Root<Livros> root) {
-		
+
 		List<Predicate> predicates = new ArrayList<>();
-		
+
 		if (!StringUtils.isEmpty(livrosFilter.getNome())) {
-			predicates.add(builder.like(builder.lower(root.get(Livros_.NOME)), "%" + livrosFilter.getNome().toLowerCase() + "%"));
+			predicates.add(builder.like(builder.lower(root.get(Livros_.nome)),
+					"%" + livrosFilter.getNome().toLowerCase() + "%"));
 		}
-		
+
 		if (!StringUtils.isEmpty(livrosFilter.getAutor())) {
-			predicates.add(builder.like(builder.lower(root.get(Livros_.AUTOR)), "%" + livrosFilter.getAutor().toLowerCase() + "%"));
+			predicates.add(builder.like(builder.lower(root.get(Livros_.autor)),
+					"%" + livrosFilter.getAutor().toLowerCase() + "%"));
 		}
-		
+
 		return predicates.toArray(new Predicate[predicates.size()]);
 	}
 
@@ -61,24 +62,24 @@ public class LivrosRepositoryImpl implements LivrosRepositoryQuery {
 		int paginaAtual = pageable.getPageNumber();
 		int totalRegistrosPorPagina = pageable.getPageSize();
 		int primeiroRegistroDaPagina = paginaAtual * totalRegistrosPorPagina;
-		
+
 		query.setFirstResult(primeiroRegistroDaPagina);
 		query.setMaxResults(totalRegistrosPorPagina);
-		
+
 	}
-	
+
 	private Long total(LivrosFilter livrosFilter) {
-		
+
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
 		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
 		Root<Livros> root = criteria.from(Livros.class);
-		
+
 		Predicate[] predicates = criarRestricoes(livrosFilter, builder, root);
 		criteria.where(predicates);
-		
+
 		criteria.select(builder.count(root));
-		
+
 		return manager.createQuery(criteria).getSingleResult();
 	}
-	
+
 }

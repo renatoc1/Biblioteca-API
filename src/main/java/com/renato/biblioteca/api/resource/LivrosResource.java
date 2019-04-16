@@ -1,6 +1,5 @@
 package com.renato.biblioteca.api.resource;
 
-
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,42 +30,42 @@ import com.renato.biblioteca.api.service.LivrosService;
 @RestController
 @RequestMapping("/livros")
 public class LivrosResource {
-	
+
 	@Autowired
 	private LivrosRepository livrosRepository;
-	
+
 	@Autowired
 	private ApplicationEventPublisher publisher;
-	
+
 	@Autowired
 	private LivrosService livrosService;
-	
+
 	@GetMapping
-	public Page<Livros> pesquisar(LivrosFilter livroFilter, Pageable pageable){
+	public Page<Livros> pesquisar(LivrosFilter livroFilter, Pageable pageable) {
 		return livrosRepository.filtrar(livroFilter, pageable);
 	}
-	
+
 	@PostMapping
 	public ResponseEntity<Livros> criar(@Valid @RequestBody Livros livro, HttpServletResponse response) {
 		Livros livroSalvo = livrosRepository.save(livro);
-		
+
 		publisher.publishEvent(new RecursoCriadoEvent(this, response, livroSalvo.getId()));
-		
+
 		return ResponseEntity.status(HttpStatus.CREATED).body(livroSalvo);
 	}
-	
+
 	@GetMapping("/{id}")
 	public ResponseEntity<Livros> buscarPeloId(@PathVariable Long id) {
-		Livros livro = livrosRepository.findById(id).orElse(null);
+		Livros livro = livrosRepository.findOne(id);
 		return livro != null ? ResponseEntity.ok(livro) : ResponseEntity.notFound().build();
 	}
-	
+
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long id) {
-		livrosRepository.deleteById(id);
+		livrosRepository.delete(id);
 	}
-	
+
 	@PutMapping("/{id}")
 	public ResponseEntity<Livros> atualizar(@PathVariable Long id, @Valid @RequestBody Livros livro) {
 		Livros livroSalvo = livrosService.atualizar(id, livro);
